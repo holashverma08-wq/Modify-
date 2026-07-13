@@ -1,0 +1,30 @@
+# PrepGalaxy — requirements.txt
+# Python 3.12+ compatible. Pinned to major-compatible ranges for stability.
+
+# --- Telegram Bot Framework ---
+aiogram>=3.13,<4.0
+
+# --- MongoDB (async driver + underlying driver) ---
+motor>=3.5,<4.0
+pymongo>=4.8,<5.0
+
+# --- Configuration ---
+python-dotenv>=1.0,<2.0
+
+# --- AI / Vision (used from Phase 2 onward) ---
+google-generativeai>=0.8,<1.0
+
+# --- OCR / OMR / Image Processing (used from Phase 2 onward) ---
+opencv-python-headless>=4.10,<5.0
+pytesseract>=0.3.13,<0.4
+Pillow>=10.4,<11.0
+
+# --- PDF Generation & Parsing (used from Phase 3 onward) ---
+reportlab>=4.2,<5.0
+PyMuPDF>=1.24,<2.0
+
+# --- Analytics / Charts (used from Phase 3 onward) ---
+matplotlib>=3.9,<4.0
+
+# --- HTTP client (Gemini REST calls, health checks, webhooks) ---
+aiohttp>=3.10,<4.0

@@ -130,8 +130,7 @@ def _get_optional_int_list_env(key: str, default: List[int]) -> List[int]:
 class Config:
     environment: Environment
     log_level: LogLevel
-    admin_ids: List[int] = field(default_factory=list)
-    rate_limit_mps: int = DEFAULT_RATE_LIMIT
+    # Bina default value wale pehle aayenge:
     bot_token: str
     mongo_uri: str
     mongo_db_name: str
@@ -141,6 +140,9 @@ class Config:
     mongo_server_selection_timeout_ms: int
     mongo_max_retries: int
     mongo_retry_base_delay_seconds: float
+    # Default value wale hamesha sabse last mein aayenge:
+    admin_ids: List[int] = field(default_factory=list)
+    rate_limit_mps: int = DEFAULT_RATE_LIMIT
 
     @staticmethod
     def load() -> "Config":

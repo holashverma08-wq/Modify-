@@ -55,6 +55,8 @@ from aiogram.filters import CommandStart, Command, BaseFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ErrorEvent, InlineKeyboardButton, InlineKeyboardMarkup
+from aiohttp import web
+import os
 from motor.motor_asyncio import (
     AsyncIOMotorClient,
     AsyncIOMotorClientSession,
@@ -515,12 +517,22 @@ class ContainerMiddleware(BaseMiddleware):
 class RateLimitMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         container: ServiceContainer = data["container"]
-        user_id = event.from_user.id if event.from_user else None
+        
+        # Sahi tareeka: Pehle check karo ki message hai ya callback
+        user_id = None
+        if event.message:
+            user_id = event.message.from_user.id
+        elif event.callback_query:
+            user_id = event.callback_query.from_user.id
+            
         if user_id:
-            try: await container.rate_limiter.acquire(user_id)
+            try: 
+                await container.rate_limiter.acquire(user_id)
             except RateLimitExceededError:
-                if isinstance(event, types.Message): await event.answer("⚠️ Action blocked: Please slow down.")
-                elif isinstance(event, types.CallbackQuery): await event.answer("⚠️ Too fast!", show_alert=True)
+                if event.message: 
+                    await event.message.answer("⚠️ Action blocked: Please slow down.")
+                elif event.callback_query: 
+                    await event.callback_query.answer("⚠️ Too fast!", show_alert=True)
                 return
         return await handler(event, data)
 
@@ -706,10 +718,30 @@ class PrepGalaxyApplication:
         await self.container.db.disconnect()
         await self._bot.session.close()
 
+    # --- NAYA DUMMY SERVER FUNCTION ---
+    async def dummy_server(self):
+        async def health_check(request):
+            return web.Response(text="Bot is running perfectly!")
+            
+        app = web.Application()
+        app.router.add_get('/', health_check)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        
+        port = int(os.environ.get("PORT", 10000)) 
+        site = web.TCPSite(runner, '0.0.0.0', port)
+        await site.start()
+        self._logger.info(f"Dummy web server started on port {port}.")
+    # ----------------------------------
+
     async def run(self) -> None:
         loop = asyncio.get_running_loop()
         self._install_signal_handlers(loop)
         await self.startup()
+        
+        # Yahan dummy server start hoga
+        await self.dummy_server() 
+        
         try:
             await self._dispatcher.start_polling(self._bot, handle_signals=False, close_bot_session=False)
         finally:

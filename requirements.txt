@@ -1,28 +1,23 @@
 # PrepGalaxy — Python Dependencies
 # =================================
-# Phase 4 (Admin System & Transactions) dependencies.
-# Later phases append to this file
-# as new subsystems are built (Gemini AI, OCR, OMR, PDF generation, etc.) —
-# never remove or replace what is already pinned here without a documented
-# reason.
-#
-# Install with:
-#   pip install -r requirements.txt
+# Phase 5 (AI Stack, OCR, OMR, PDF) dependencies.
+# Install with: pip install -r requirements.txt
 
 # --- Telegram Bot Framework -------------------------------------------------
 aiogram==3.29.1
 
 # --- MongoDB (async driver + underlying driver, pinned together) -----------
-# NOTE: Motor is in maintenance-only mode (MongoDB recommends the native
-# PyMongo Async API going forward).
-# It is retained here per the project's
-# locked technology stack; see the Motor deprecation note in main.py.
 motor==3.7.1
 pymongo>=4.9,<5.0
 
-# --- HTTP client (required directly by aiogram; pinned to a compatible
-#     range so pip does not need to resolve it implicitly) -----------------
+# --- HTTP client ----------------------------------------------------------
 aiohttp>=3.9,<4.0
 
-# --- Configuration -----------------------------------------------------
+# --- Configuration ---------------------------------------------------------
 python-dotenv==1.0.1
+
+# --- Phase 5: AI & Vision Stack --------------------------------------------
+google-generativeai==0.8.3
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+reportlab==4.2.0

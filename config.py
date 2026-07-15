@@ -3,13 +3,6 @@ PrepGalaxy — Configuration Module
 ==================================
 
 Centralized environment variable loading, validation, and global constants.
-
-This module contains NO business logic. It is responsible exclusively for:
-    - Loading environment variables from the process environment / `.env` file
-    - Validating that all mandatory configuration is present and well-formed
-    - Exposing a single, immutable, typed configuration object to the rest
-      of the application via `Config.load()`
-    - Defining configuration-level enums shared across the codebase
 """
 
 from __future__ import annotations
@@ -63,7 +56,7 @@ class LogLevel(str, Enum):
 # ---------------------------------------------------------------------------
 
 APP_NAME: Final[str] = "PrepGalaxy"
-APP_VERSION: Final[str] = "1.3.0-phase4"
+APP_VERSION: Final[str] = "1.4.0-phase5"
 
 DEFAULT_MONGO_DB_NAME: Final[str] = "prepgalaxy"
 DEFAULT_LOG_LEVEL: Final[str] = LogLevel.INFO.value
@@ -130,8 +123,10 @@ def _get_optional_int_list_env(key: str, default: List[int]) -> List[int]:
 class Config:
     environment: Environment
     log_level: LogLevel
-    # Bina default value wale pehle aayenge:
+    admin_ids: List[int] = field(default_factory=list)
+    rate_limit_mps: int = DEFAULT_RATE_LIMIT
     bot_token: str
+    gemini_api_key: str
     mongo_uri: str
     mongo_db_name: str
     mongo_min_pool_size: int
@@ -140,9 +135,6 @@ class Config:
     mongo_server_selection_timeout_ms: int
     mongo_max_retries: int
     mongo_retry_base_delay_seconds: float
-    # Default value wale hamesha sabse last mein aayenge:
-    admin_ids: List[int] = field(default_factory=list)
-    rate_limit_mps: int = DEFAULT_RATE_LIMIT
 
     @staticmethod
     def load() -> "Config":
@@ -166,6 +158,8 @@ class Config:
         bot_token = _get_required_env("BOT_TOKEN")
         if ":" not in bot_token:
             raise ConfigurationError("BOT_TOKEN appears malformed. Expected format '<bot_id>:<secret>'.")
+            
+        gemini_api_key = _get_required_env("GEMINI_API_KEY")
 
         mongo_uri = _get_required_env("MONGO_URI")
         if not (mongo_uri.startswith("mongodb://") or mongo_uri.startswith("mongodb+srv://")):
@@ -190,6 +184,7 @@ class Config:
             admin_ids=admin_ids,
             rate_limit_mps=rate_limit_mps,
             bot_token=bot_token,
+            gemini_api_key=gemini_api_key,
             mongo_uri=mongo_uri,
             mongo_db_name=mongo_db_name,
             mongo_min_pool_size=mongo_min_pool_size,
